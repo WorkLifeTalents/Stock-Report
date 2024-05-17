@@ -1,0 +1,293 @@
+---
+title: "Work Life Talents: Stock Report"
+author: "WLT-AI-Bot & Chief Economist"
+date: "Mai 2024"
+output: html_document
+---
+
+```{r, echo=FALSE}
+htmltools::img(src = knitr::image_uri("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT.jpg"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0; right:500px; padding:10px;',
+               width = "150px",
+               heigth = "150px")
+```
+
+
+```{r , include=FALSE, echo = FALSE}
+## Library
+library(tidyverse)
+library(tidyquant)
+library(timetk)
+
+# scraping data from Yahoo
+library(stringr)
+
+# nice tables
+library(DT)
+
+
+library(plotly)
+
+# to get data with python
+library(reticulate)
+
+library(readxl)
+
+library(htmltools)
+```
+
+```{r , include=FALSE,  echo=FALSE}
+## Functions
+scrapData = function(ticker, sector = FALSE, title = FALSE){
+  print(ticker)
+  sec = tit = NA
+  
+  url = paste("https://in.finance.yahoo.com/quote/", ticker, "/profile", sep = "")
+  mydata = as.data.frame(readLines(url, warn = FALSE))
+  names(mydata) = "text"
+  # sector
+  if (sector){
+    sec = str_match(as.character(mydata[24, ]),'Sector(.{50})')[, 2]
+    sec = substr(sec,regexpr('">',sec)[1]+2,nchar(sec)-6)
+  }
+  
+  # name
+  if (title){
+    tit = str_match(as.character(mydata[1, ]),'title(.{60})')[, 2]
+    tit = substr(tit,2,regexpr("Company",tit)[1]-2)
+  }
+  
+  tickerInfo = c(tit, sec)
+  
+  return(tickerInfo)
+}
+
+
+scrapDesc = function(ticker){
+  print(ticker)
+  
+  description = NA
+  
+  url = paste("https://finance.yahoo.com/quote/", ticker, "/profile", sep = "")
+  mydata = as.data.frame(readLines(url))
+  names(mydata) = "text"
+  
+  description = str_match(as.character(mydata[24, ]),'Description(.{2000})')[,2]
+  
+  if(is.na(description)){
+    description = NA
+  } else{
+    
+    if (regexpr('">',description)[1]>0){
+      tmpStart = regexpr('">',description)[1]
+    } else {
+      print("something wrong here")
+    }
+    
+    if (regexpr("</p>",description)[1]<0){
+      tmpEnd = 2000
+    } else {
+      tmpEnd = regexpr("</p>",description)
+    }
+    
+    description = substr(description, tmpStart+2, tmpEnd-1)
+  }
+  return(description)
+}
+
+# tmp <- as.character(mydata[5, ])
+# save(tmp, file=".txt", ascii = TRUE)
+
+```
+
+
+```{r , echo = FALSE}
+## Ticker
+
+### Portfolio Ticker
+end.date = as.Date(Sys.Date(), format('%d/%m/%Y')) 
+reportingDate <-  if(weekdays(end.date-1) == "Sonntag") {
+  end.date - 3
+} else if (weekdays(end.date-1) == "Samstag"){
+  end.date-2
+} else{ 
+  end.date-1}
+
+watchlist <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx")
+
+
+```
+
+
+```{r , echo = FALSE}
+### Benchmark Ticker
+#sectors <- c("XLE","XLK","XLC","XLRE","XLU","XLF","XLY","XLP","XLV","XLI","XLB")
+```
+
+
+
+
+
+```{r , echo = FALSE}
+## Story
+#descInfo <- mapply(scrapDesc, ptf.stk)
+#descInfo
+
+
+```
+
+
+```{r , include=FALSE, echo = FALSE}
+### Yahoo Data with R
+
+#* Get data ----
+stk_tbl <- watchlist$Ticker %>%
+  tq_get(get  = "stock.prices",
+         from = "2019-06-01" ,
+         to   = end.date) %>%
+  group_by(symbol) 
+
+
+#sector_tbl <- sectors %>%
+#  tq_get(get  = "stock.prices",
+#         from = end.date-360 ,
+#         to   = end.date) %>%
+#  group_by(symbol)
+
+
+
+# Scrap ticker info data from Yahoo
+#ptf.info <- mapply(scrapData, ptf.stk, sector = TRUE, title = TRUE)
+#tmpPtfInfo  <- as.data.frame( cbind(ptf.stk, t(ptf.info) ) )
+#colnames(tmpPtfInfo) <- c("symbol" ,"name", "sector")
+
+# last price
+last <- select( filter(stk_tbl, date == reportingDate), "symbol", "adjusted", "date") %>%
+  mutate(adjusted = round(adjusted,2))
+
+colnames(last) <- c("Ticker", "adjusted", "date")
+
+ptfInfo <- left_join( watchlist,  last, by = "Ticker") 
+
+
+
+#secInfo <- mapply(scrapData, sectors, sector = FALSE, title = TRUE)
+#secInfo <- secInfo[1, ]
+
+```
+
+### Diskutierte Aktien
+```{r, echo=FALSE, warning=FALSE}
+
+l <- htmltools::tagList()
+
+for (iSymbol in watchlist$Ticker){
+  
+  tmp <- select( filter(stk_tbl, symbol == iSymbol), "symbol", "adjusted", "date")
+  tmpinfo <- select(filter(watchlist, Ticker == iSymbol), "Preis", "Diskussionsdatum", "Wunschkurs")
+  # hard stopp loss
+  #tmpinfo <- tmpinfo %>%
+  #  mutate(SL = Preis*0.8)
+  
+  # trailing stopp-loss
+  #tmp2 <- tmp %>%  filter_by_time(.date_var = date, .start_date = watchlist$Diskussionsdatum, .end_date = "end") %>% 
+  #  slice(which.max(adjusted)) %>%
+  #  mutate(tSL = adjusted*0.8)
+  
+  
+  p <- plot_ly(tmp,x = ~date, y = ~adjusted, type = 'scatter', mode = 'lines', name = ~symbol )
+  p <-  add_trace(p, data = tmpinfo,  x = ~Diskussionsdatum, y = ~Preis,  type = "scatter", mode='markers', name = "Diskutiert") # bought
+  #p <-  add_lines(p, data = tmp, x = ~date, y = tmpinfo$SL, name = "Stopp-Loss") # SL
+  #p <-  add_lines(p, data = tmp, x = ~date, y = tmp2$tSL, name = "traiing Stopp-Loss") # trailing SL
+  p <- add_lines(p, data = tmp, x = ~date, y = tmpinfo$Wunschkurs, name = "Wunschkurs")
+  p<- add_ribbons(p, data= tmp, x=~date, ymin= 0.95*tmpinfo$Wunschkurs, ymax=1.05*tmpinfo$Wunschkurs, name="5% Band", line=list(opacity=0.3, width=0))
+  
+  l[[iSymbol]] <- p
+  
+}
+
+#%>% add_markers(x = ~date, y = ~adjusted)
+
+l
+
+
+
+```
+
+
+## Overview
+```{r , echo=FALSE}
+
+#ptfData <- left_join(ptf.data, ptfInfo, by = c("symbol"))
+
+datatable(ptfInfo,
+          options = list(
+            columnDefs = list(
+              list(targets = 6, render = JS("function(data, type, row, meta) {
+                                            return '<a href=\"' + data + '\" target=\"_blank\">'+data+'</a>';
+                                            }")
+            )
+          )
+        )
+)
+
+```
+
+### Renditen
+```{r , echo=FALSE, warning=FALSE}
+
+stkRetM <- stk_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "monthly", 
+               col_rename = "retM") %>%
+  mutate(retM = round(retM*100,2))
+
+stkRetW <- stk_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "weekly", 
+               col_rename = "retW") %>%
+  mutate(retW = round(retW*100,2))
+
+stkRetQ <- stk_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "quarterly", 
+               col_rename = "retQ") %>%
+  mutate(retQ = round(retQ*100,2))
+
+stkRetY <- stk_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "yearly", 
+               col_rename = "retY") %>%
+  mutate(retY = round(retY*100,2))
+
+
+
+
+retTable <- left_join( filter(stkRetW, date == reportingDate), filter(stkRetM, date == reportingDate), by = c("symbol", "date")) 
+retTable <- left_join(retTable, filter(stkRetQ, date == reportingDate), by = c("symbol", "date"))
+retTable <- left_join(retTable, filter(stkRetY, date == reportingDate),by = c("symbol", "date"))
+
+datatable(as.data.frame(retTable))
+
+
+```
+
+
+
+
+
+## Disclaimer
+Data is from Yahoo Finance. DO YOUR OWN RESEARCH !!! WE ARE NOT RESPONSIBLE FOR YOUR PERSONAL LOSSES! 
+
+The information on this website is for information purposes only. It is believed to be reliable, but them members of the Work Life Talents Podcast do not warrant its completeness or accuracy. The information on the website is not intended as an offer or solicitation for the purchase of stock or any financial instrument. The information and materials contained in these pages and the terms, conditions and descriptions that appear, are subject to change without notice.
+
+NO ADVICE OR INFORMATION, WHETHER ORAL OR WRITTEN, OBTAINED FROM THE WORK LIFE TALENT PODCAST OR THROUGH IT'S WEBSITES, PRODUCTS AND SERVICES WILL CREATE ANY WARRANTY NOT EXPRESSLY MADE HEREIN.
