@@ -178,7 +178,8 @@ ptfInfo <- left_join( watchlist,  last, by = "Ticker")
 ```
 
 ### Diskutierte Aktien
-```{r, echo=FALSE, warning=FALSE}
+<!--
+```{r echo=FALSE, warning=FALSE}
 
 l <- htmltools::tagList()
 
@@ -204,7 +205,7 @@ for (iSymbol in watchlist$Ticker){
   p<- add_ribbons(p, data= tmp, x=~date, ymin= 0.95*tmpinfo$Wunschkurs, ymax=1.05*tmpinfo$Wunschkurs, name="5% Band", line=list(opacity=0.3, width=0))
   
   l[[iSymbol]] <- p
-  
+
 }
 
 #%>% add_markers(x = ~date, y = ~adjusted)
@@ -212,11 +213,105 @@ for (iSymbol in watchlist$Ticker){
 l
 
 
+```
+-->
 
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# Last price
+last <- stk_tbl %>%
+  filter(date == reportingDate) %>%
+  select(symbol, adjusted, date) %>%
+  mutate(adjusted = round(adjusted, 2))
+
+colnames(last) <- c("Ticker", "adjusted", "date")
+
+ptfInfo <- left_join(watchlist, last, by = "Ticker")
+
+# Prepare the combined data
+combined_data <- stk_tbl %>%
+  inner_join(watchlist, by = c("symbol" = "Ticker"))
+
+
+create_traces <- function(data) {
+  ticker <- data$symbol[1]
+  Preis_trace <- list(
+    x = data$Diskussionsdatum,
+    y = data$Preis,
+    type = 'scatter',
+    mode = 'markers',
+    marker = list(color = 'red', size = 6),
+    name = paste(ticker, "Preis"),
+    visible = FALSE
+  )
+  
+   main_trace <- list(
+    x = data$date,
+    y = data$close,
+    type = 'scatter',
+    mode = 'lines',
+    name = ticker,
+    visible = FALSE
+  )
+  list(
+    main_trace,
+    Preis_trace
+  )
+}
+
+# Apply the function to each ticker's data
+traces_list <- combined_data %>%
+  group_split(symbol) %>% 
+  lapply(create_traces)
+
+# Flatten the list of traces
+traces <- do.call(c, traces_list)
+
+fig <- plot_ly()
+
+for (trace in traces) {
+  fig <- add_trace(fig, x = trace$x, y = trace$y, type = trace$type, mode = trace$mode, name = trace$name, line = trace$line, marker = trace$marker, visible = trace$visible)
+}
+
+# Initially display the first ticker's data
+fig <- fig %>%
+  layout(
+    title = "Aktien im Fokus",
+    updatemenus = list(
+      list(
+        buttons = lapply(seq_along(watchlist$Ticker), function(i) {
+          visibility <- rep(FALSE, length(traces))
+          visibility[(2 * (i - 1) + 1):(2 * i)] <- TRUE
+          list(
+            method = "restyle",
+            args = list("visible", visibility),
+            label = sort(watchlist$Ticker)[i]
+          )
+        }),
+        direction = "down",
+        pad = list('r' = 10, 't' = 10),
+        showactive = TRUE,
+        x = 0.1,
+        xanchor = 'left',
+        y = 1.2,
+        yanchor = 'top'
+      )
+    )
+  )
+
+# Set the visibility of the first ticker's traces to TRUE
+for (i in 2:3) {
+ fig$x$attrs[[i]]$visible <- TRUE
+}
+
+fig
 ```
 
 
-## Overview
+## Youtube / Spotify Übersicht
 ```{r , echo=FALSE}
 
 #ptfData <- left_join(ptf.data, ptfInfo, by = c("symbol"))
