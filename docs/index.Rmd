@@ -5,6 +5,7 @@ date: "Mai 2024"
 output: html_document
 ---
 
+
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT.jpg"), 
                alt = 'logo', 
@@ -254,11 +255,24 @@ create_traces <- function(data) {
     type = 'scatter',
     mode = 'lines',
     name = ticker,
+    line = list(color = "#003172"),
     visible = FALSE
   )
+   
+  WK_trace <- list(
+    x = data$date,
+    y = data$Wunschkurs,
+    type = 'scatter',
+    mode = 'lines',
+    name = "Wunschkurs",
+    line = list(color = "#B3D4FF"),
+    visible = FALSE
+  )
+  
   list(
     main_trace,
-    Preis_trace
+    Preis_trace,
+    WK_trace
   )
 }
 
@@ -284,7 +298,7 @@ fig <- fig %>%
       list(
         buttons = lapply(seq_along(watchlist$Ticker), function(i) {
           visibility <- rep(FALSE, length(traces))
-          visibility[(2 * (i - 1) + 1):(2 * i)] <- TRUE
+          visibility[(3 * (i - 1) + 1):(3 * i)] <- TRUE
           list(
             method = "restyle",
             args = list("visible", visibility),
@@ -292,22 +306,23 @@ fig <- fig %>%
           )
         }),
         direction = "down",
-        pad = list('r' = 10, 't' = 10),
+        pad = list('r' = 0, 't' = 10),
         showactive = TRUE,
-        x = 0.1,
-        xanchor = 'left',
-        y = 1.2,
-        yanchor = 'top'
+        x = 1.4,
+        xanchor = 'right',
+        y = 1.1,
+        yanchor = 'bottom'
       )
     )
   )
 
 # Set the visibility of the first ticker's traces to TRUE
-for (i in 2:3) {
+for (i in 2:4) {
  fig$x$attrs[[i]]$visible <- TRUE
 }
 
 fig
+
 ```
 
 
@@ -381,8 +396,11 @@ datatable(as.data.frame(retTable))
 
 
 ## Disclaimer
+<small>     
 Data is from Yahoo Finance. DO YOUR OWN RESEARCH !!! WE ARE NOT RESPONSIBLE FOR YOUR PERSONAL LOSSES! 
 
-The information on this website is for information purposes only. It is believed to be reliable, but them members of the Work Life Talents Podcast do not warrant its completeness or accuracy. The information on the website is not intended as an offer or solicitation for the purchase of stock or any financial instrument. The information and materials contained in these pages and the terms, conditions and descriptions that appear, are subject to change without notice.
+This is not a personal recommendation, nor an offer to buy or sell nor a solicitation to buy or sell any securities, investment products or other financial instruments or services. This material is distributed for general informational and educational purposes only and is not intended to constitute legal, tax, accounting or investment advice. The statements in this document shall not be considered as an objective or independent explanation of the matters. Please note that this document (a) has not been prepared in accordance with legal requirements designed to promote the independence of investment research, and (b) is not subject to any prohibition on dealing ahead of the dissemination or publication of investment research. “Publications” do not reflect any opinions of the Work-Life-Talents members. Publications are meant for informational purposes only, are not intended to serve as a recommendation to by or sell any security in a brokerage account or any platform, and are not an offer or sale of a security nor an endorsement or advertisement of the same. While the Work-Life-Talent members seek to ensure the accuracy of the information it presents, it has no obligation and shall not be liable for errors in any data, information, or Publications accessible through the Work-Life-Talent channel. All investments involve risk and the past performance of a security or financial product does not guarantee future results or returns. Work-Life-Talents is not a broker-dealer nor an investment adviser, and makes no representations or warranties, express or implied, and disclaims any and all warranties with respect to any information accessible via any Work-Life-Talents Publications or data.
 
 NO ADVICE OR INFORMATION, WHETHER ORAL OR WRITTEN, OBTAINED FROM THE WORK LIFE TALENT PODCAST OR THROUGH IT'S WEBSITES, PRODUCTS AND SERVICES WILL CREATE ANY WARRANTY NOT EXPRESSLY MADE HEREIN.
+</small>
+
