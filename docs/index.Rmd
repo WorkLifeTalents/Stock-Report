@@ -4,7 +4,9 @@ author: "WLT-AI-Bot & Chief Economist"
 date:  "`r format(Sys.time(), '%d %B %Y')`"
 output: html_document
 ---
-[Work Life Talents](https://www.youtube.com/@Work-Life-Talents)
+[Youtube: Work Life Talents](https://www.youtube.com/@Work-Life-Talents)
+
+[Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab)
 
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT.jpg"), 
