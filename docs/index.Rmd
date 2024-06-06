@@ -117,8 +117,8 @@ reportingDate <-  if(weekdays(end.date-1) == "Sonntag") {
 } else{ 
   end.date-1}
 
-watchlist <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx")
-
+watchlist <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx", sheet = "Aktien", .name_repair = "unique_quiet")
+sektoren <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx", sheet = "Sektoren", .name_repair = "unique_quiet")
 
 ```
 
@@ -152,11 +152,11 @@ stk_tbl <- watchlist$Ticker %>%
   group_by(symbol) 
 
 
-#sector_tbl <- sectors %>%
-#  tq_get(get  = "stock.prices",
-#         from = end.date-360 ,
-#         to   = end.date) %>%
-#  group_by(symbol)
+sector_tbl <- sektoren$Ticker %>%
+  tq_get(get  = "stock.prices",
+         from = end.date-360 ,
+         to   = end.date) %>%
+  group_by(symbol)
 
 
 
@@ -394,7 +394,52 @@ datatable(as.data.frame(retTable))
 ```
 
 
+### Sektoranalyse
+```{r, echo=FALSE, warning=FALSE}
+### Risk-Return Sectors
+secRetM <- sector_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "monthly", 
+               col_rename = "retM") %>%
+  mutate(retM = round(retM*100,2))
 
+secRetW <- sector_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "weekly", 
+               col_rename = "retW") %>%
+  mutate(retW = round(retW*100,2))
+
+secRetQ <- sector_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "quarterly", 
+               col_rename = "retQ") %>%
+  mutate(retQ = round(retQ*100,2))
+
+secRetY <- sector_tbl %>%
+  group_by(symbol) %>%
+  tq_transmute(select     = adjusted, 
+               mutate_fun = periodReturn, 
+               period     = "yearly", 
+               col_rename = "retY") %>%
+  mutate(retY = round(retY*100,2))
+
+
+
+
+secRetTable <- left_join( filter(secRetW, date == reportingDate), filter(secRetM, date == reportingDate), by = c("symbol", "date")) 
+secRetTable <- left_join(secRetTable, filter(secRetQ, date == reportingDate), by = c("symbol", "date"))
+secRetTable <- left_join(secRetTable, filter(secRetY, date == reportingDate),by = c("symbol", "date"))
+
+
+secRetTable$symbol <- sektoren$Name
+datatable(as.data.frame(secRetTable))
+```
 
 
 ## Disclaimer
