@@ -9,7 +9,7 @@ output: html_document
 [Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab)
 
 ```{r, echo=FALSE}
-htmltools::img(src = knitr::image_uri("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT.jpg"), 
+htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
                alt = 'logo', 
                style = 'position:absolute; top:0; right:500px; padding:10px;',
                width = "150px",
@@ -117,8 +117,8 @@ reportingDate <-  if(weekdays(end.date-1) == "Sonntag") {
 } else{ 
   end.date-1}
 
-watchlist <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx", sheet = "Aktien", .name_repair = "unique_quiet")
-sektoren <- read_xlsx("E:\\03-Hobby\\06-Trading\\06-WLT\\WLT-Titelliste.xlsx", sheet = "Sektoren", .name_repair = "unique_quiet")
+watchlist <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Aktien", .name_repair = "unique_quiet")
+sektoren <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Sektoren", .name_repair = "unique_quiet")
 
 ```
 
