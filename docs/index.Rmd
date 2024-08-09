@@ -8,6 +8,8 @@ output: html_document
 
 [Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab)
 
+[Apple: Work Life Talents](https://podcasts.apple.com/ch/podcast/work-life-talents/id1760824381)
+
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
                alt = 'logo', 
