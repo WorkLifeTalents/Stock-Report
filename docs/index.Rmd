@@ -1,14 +1,10 @@
 ---
-title: "Work Life Talents: Stock Report"
+title: "Work Life Talents"
 author: "WLT-AI-Bot & Chief Economist"
 date:  "`r format(Sys.time(), '%d %B %Y')`"
 output: html_document
 ---
-[Youtube: Work Life Talents](https://www.youtube.com/@Work-Life-Talents)
-
-[Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab)
-
-[Apple: Work Life Talents](https://podcasts.apple.com/ch/podcast/work-life-talents/id1760824381)
+[Youtube: Work Life Talents](https://www.youtube.com/@Work-Life-Talents) / [Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab) / [Apple: Work Life Talents](https://podcasts.apple.com/ch/podcast/work-life-talents/id1760824381)
 
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
@@ -181,7 +177,7 @@ ptfInfo <- left_join( watchlist,  last, by = "Ticker")
 #secInfo <- secInfo[1, ]
 
 ```
-
+## Übersicht {.tabset}
 ### Diskutierte Aktien
 <!--
 ```{r echo=FALSE, warning=FALSE}
@@ -330,7 +326,7 @@ fig
 ```
 
 
-## Youtube / Spotify Übersicht
+Youtube / Spotify Übersicht
 ```{r , echo=FALSE}
 
 #ptfData <- left_join(ptf.data, ptfInfo, by = c("symbol"))
@@ -348,7 +344,7 @@ datatable(ptfInfo,
 
 ```
 
-### Renditen
+Renditen
 ```{r , echo=FALSE, warning=FALSE}
 
 stkRetM <- stk_tbl %>%
@@ -395,8 +391,18 @@ datatable(as.data.frame(retTable))
 
 ```
 
+### Aktien Indizes
 
-### Sektoranalyse
+Hier kommt bald eine Übersicht zu unserer Rubrik Aktien Indizes
+
+
+### WLT Portfolio
+Hier kommt bald eine Übersicht zu unserem WLT Portfolio
+
+
+
+
+### Sektor Aktien
 ```{r, echo=FALSE, warning=FALSE}
 ### Risk-Return Sectors
 secRetM <- sector_tbl %>%
