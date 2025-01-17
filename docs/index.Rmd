@@ -499,14 +499,8 @@ fig
 ```{r, echo=FALSE, warning=FALSE}
 # Portfolio Gewichtungen
 
-cash <- 200000
 
-portfolio$Gewichtung <- portfolio$Preis * portfolio$Stück/cash
-
-data <- data.frame(c(portfolio$Name,"Cash"),c(portfolio$Preis * portfolio$Stück, (cash - sum(portfolio$Preis * portfolio$Stück))))
-colnames(data) <- c("Name", "Gewichtung")
-
-fig <- plot_ly(data, labels = ~Name, values = ~Gewichtung, type = 'pie')
+fig <- plot_ly(portfolio, labels = ~Name, values = ~Anteil, type = 'pie')
 fig <- fig %>% layout(title = 'Initiale Gewichtung',
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
