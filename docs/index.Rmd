@@ -118,6 +118,7 @@ reportingDate <-  if(weekdays(end.date-1) == "Sonntag") {
 watchlist <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Aktien", .name_repair = "unique_quiet")
 sektoren <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Sektoren", .name_repair = "unique_quiet")
 portfolio <-  read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Portfolio", .name_repair = "unique_quiet")
+etf <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "CH", .name_repair = "unique_quiet")
 
 ```
 
