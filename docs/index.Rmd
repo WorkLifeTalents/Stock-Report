@@ -9,7 +9,7 @@ output: html_document
 ```{r, echo=FALSE}
 htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
                alt = 'logo', 
-               style = 'position:absolute; top:0; right:500px; padding:10px;',
+               style = 'position:absolute; top:0; right:300px; padding:10px;',
                width = "150px",
                heigth = "150px")
 ```
