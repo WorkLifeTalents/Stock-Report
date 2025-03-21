@@ -2,8 +2,13 @@
 title: "Work Life Talents"
 author: "WLT-AI-Bot & Chief Economist"
 date:  "`r format(Sys.time(), '%d %B %Y')`"
-output: html_document
+output: 
+  html_document:
+    #theme: null
+    self_contained: true
+    css: styles.css
 ---
+
 [Youtube: Work Life Talents](https://www.youtube.com/@Work-Life-Talents) / [Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab) / [Apple: Work Life Talents](https://podcasts.apple.com/ch/podcast/work-life-talents/id1760824381)
 
 ```{r, echo=FALSE}
@@ -36,6 +41,8 @@ library(reticulate)
 library(readxl)
 
 library(htmltools)
+
+source("../../shinyApp/functions/summary_ret_sd_table.R")
 ```
 
 ```{r , include=FALSE,  echo=FALSE}
@@ -225,7 +232,7 @@ l
 
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE,  out.width="100%", message=FALSE, warning=FALSE}
 
 # Last price
 last <- stk_tbl %>%
@@ -352,46 +359,55 @@ datatable(ptfInfo,
 Renditen
 ```{r , echo=FALSE, warning=FALSE}
 
-stkRetM <- stk_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "monthly", 
-               col_rename = "retM") %>%
-  mutate(retM = round(retM*100,2))
 
-stkRetW <- stk_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "weekly", 
-               col_rename = "retW") %>%
-  mutate(retW = round(retW*100,2))
+#############################
+# calculate returns & standard deviation
+#############################
+stk_summary <- summary_ret_sd_table(stk_tbl)
 
-stkRetQ <- stk_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "quarterly", 
-               col_rename = "retQ") %>%
-  mutate(retQ = round(retQ*100,2))
+datatable(as.data.frame(stk_summary))
 
-stkRetY <- stk_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "yearly", 
-               col_rename = "retY") %>%
-  mutate(retY = round(retY*100,2))
-
-
-
-
-retTable <- left_join( filter(stkRetW, date == reportingDate), filter(stkRetM, date == reportingDate), by = c("symbol", "date")) 
-retTable <- left_join(retTable, filter(stkRetQ, date == reportingDate), by = c("symbol", "date"))
-retTable <- left_join(retTable, filter(stkRetY, date == reportingDate),by = c("symbol", "date"))
-
-datatable(as.data.frame(retTable))
+# 
+# stkRetM <- stk_tbl %>%
+#   group_by(symbol) %>%
+#   tq_transmute(select     = adjusted, 
+#                mutate_fun = periodReturn, 
+#                period     = "monthly", 
+#                col_rename = "retM") %>%
+#   mutate(retM = round(retM*100,2))
+# 
+# stkRetW <- stk_tbl %>%
+#   group_by(symbol) %>%
+#   tq_transmute(select     = adjusted, 
+#                mutate_fun = periodReturn, 
+#                period     = "weekly", 
+#                col_rename = "retW") %>%
+#   mutate(retW = round(retW*100,2))
+# 
+# stkRetQ <- stk_tbl %>%
+#   group_by(symbol) %>%
+#   tq_transmute(select     = adjusted, 
+#                mutate_fun = periodReturn, 
+#                period     = "quarterly", 
+#                col_rename = "retQ") %>%
+#   mutate(retQ = round(retQ*100,2))
+# 
+# stkRetY <- stk_tbl %>%
+#   group_by(symbol) %>%
+#   tq_transmute(select     = adjusted, 
+#                mutate_fun = periodReturn, 
+#                period     = "yearly", 
+#                col_rename = "retY") %>%
+#   mutate(retY = round(retY*100,2))
+# 
+# 
+# 
+# 
+# retTable <- left_join( filter(stkRetW, date == reportingDate), filter(stkRetM, date == reportingDate), by = c("symbol", "date")) 
+# retTable <- left_join(retTable, filter(stkRetQ, date == reportingDate), by = c("symbol", "date"))
+# retTable <- left_join(retTable, filter(stkRetY, date == reportingDate),by = c("symbol", "date"))
+# 
+# datatable(as.data.frame(retTable))
 
 
 ```

@@ -1,0 +1,44 @@
+---
+title: "test"
+author: "Stoz Jann"
+date: "2025-03-21"
+output: 
+  html_document:
+    #theme: united
+    self_contained: true
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, out.width="80%", echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+## Disclaimer
+<small>     
+Data is from Yahoo Finance. DO YOUR OWN RESEARCH !!! WE ARE NOT RESPONSIBLE FOR YOUR PERSONAL LOSSES! 
+
+This is not a personal recommendation, nor an offer to buy or sell nor a solicitation to buy or sell any securities, investment products or other financial instruments or services. This material is distributed for general informational and educational purposes only and is not intended to constitute legal, tax, accounting or investment advice. The statements in this document shall not be considered as an objective or independent explanation of the matters. Please note that this document (a) has not been prepared in accordance with legal requirements designed to promote the independence of investment research, and (b) is not subject to any prohibition on dealing ahead of the dissemination or publication of investment research. “Publications” do not reflect any opinions of the Work-Life-Talents members. Publications are meant for informational purposes only, are not intended to serve as a recommendation to by or sell any security in a brokerage account or any platform, and are not an offer or sale of a security nor an endorsement or advertisement of the same. While the Work-Life-Talent members seek to ensure the accuracy of the information it presents, it has no obligation and shall not be liable for errors in any data, information, or Publications accessible through the Work-Life-Talent channel. All investments involve risk and the past performance of a security or financial product does not guarantee future results or returns. Work-Life-Talents is not a broker-dealer nor an investment adviser, and makes no representations or warranties, express or implied, and disclaims any and all warranties with respect to any information accessible via any Work-Life-Talents Publications or data.
+
+NO ADVICE OR INFORMATION, WHETHER ORAL OR WRITTEN, OBTAINED FROM THE WORK LIFE TALENT PODCAST OR THROUGH IT'S WEBSITES, PRODUCTS AND SERVICES WILL CREATE ANY WARRANTY NOT EXPRESSLY MADE HEREIN.
+</small>

@@ -1,0 +1,5 @@
+div.container-fluid {
+  width: 2200px !important;
+  max-width: 2200px !important;
+  margin: 0 auto !important;
+}
