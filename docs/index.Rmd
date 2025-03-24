@@ -12,11 +12,11 @@ output:
 [Youtube: Work Life Talents](https://www.youtube.com/@Work-Life-Talents) / [Spotify: Work Life Talents](https://open.spotify.com/show/2pAXFkisgq1rC5L0EjHLOI?si=7e4e2af10ab44eab) / [Apple: Work Life Talents](https://podcasts.apple.com/ch/podcast/work-life-talents/id1760824381)
 
 ```{r, echo=FALSE}
-htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
-               alt = 'logo', 
-               style = 'position:absolute; top:0; right:300px; padding:10px;',
-               width = "150px",
-               heigth = "150px")
+#htmltools::img(src = knitr::image_uri(paste(getwd(),"/WLT.jpg",sep="")), 
+#               alt = 'logo', 
+#               style = 'position:absolute; top:0; right:300px; padding:10px;',
+#               width = "150px",
+#               heigth = "150px")
 ```
 
 
@@ -125,7 +125,7 @@ reportingDate <-  if(weekdays(end.date-1) == "Sonntag") {
 watchlist <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Aktien", .name_repair = "unique_quiet")
 sektoren <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Sektoren", .name_repair = "unique_quiet")
 portfolio <-  read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Portfolio", .name_repair = "unique_quiet")
-etf <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "CH", .name_repair = "unique_quiet")
+etf_ch <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "ETF-CH", .name_repair = "unique_quiet")
 
 ```
 
@@ -168,7 +168,11 @@ ptf_tbl <- portfolio$Ticker %>%
          to   = end.date) %>%
   group_by(symbol) 
 
-
+etf_ch_tbl <- etf_ch$Ticker %>%
+  tq_get(get  = "stock.prices",
+         from = "2015-01-01" ,
+         to   = end.date) %>%
+  group_by(symbol)
 
 # Scrap ticker info data from Yahoo
 #ptf.info <- mapply(scrapData, ptf.stk, sector = TRUE, title = TRUE)
@@ -364,52 +368,7 @@ Renditen
 # calculate returns & standard deviation
 #############################
 stk_summary <- summary_ret_sd_table(stk_tbl)
-
 datatable(as.data.frame(stk_summary))
-
-# 
-# stkRetM <- stk_tbl %>%
-#   group_by(symbol) %>%
-#   tq_transmute(select     = adjusted, 
-#                mutate_fun = periodReturn, 
-#                period     = "monthly", 
-#                col_rename = "retM") %>%
-#   mutate(retM = round(retM*100,2))
-# 
-# stkRetW <- stk_tbl %>%
-#   group_by(symbol) %>%
-#   tq_transmute(select     = adjusted, 
-#                mutate_fun = periodReturn, 
-#                period     = "weekly", 
-#                col_rename = "retW") %>%
-#   mutate(retW = round(retW*100,2))
-# 
-# stkRetQ <- stk_tbl %>%
-#   group_by(symbol) %>%
-#   tq_transmute(select     = adjusted, 
-#                mutate_fun = periodReturn, 
-#                period     = "quarterly", 
-#                col_rename = "retQ") %>%
-#   mutate(retQ = round(retQ*100,2))
-# 
-# stkRetY <- stk_tbl %>%
-#   group_by(symbol) %>%
-#   tq_transmute(select     = adjusted, 
-#                mutate_fun = periodReturn, 
-#                period     = "yearly", 
-#                col_rename = "retY") %>%
-#   mutate(retY = round(retY*100,2))
-# 
-# 
-# 
-# 
-# retTable <- left_join( filter(stkRetW, date == reportingDate), filter(stkRetM, date == reportingDate), by = c("symbol", "date")) 
-# retTable <- left_join(retTable, filter(stkRetQ, date == reportingDate), by = c("symbol", "date"))
-# retTable <- left_join(retTable, filter(stkRetY, date == reportingDate),by = c("symbol", "date"))
-# 
-# datatable(as.data.frame(retTable))
-
-
 ```
 
 ### Aktien Indizes
@@ -527,49 +486,26 @@ Hier kommt bald eine Übersicht zu unserer Rubrik Aktien Indizes
 
 ### Sektor Aktien
 ```{r, echo=FALSE, warning=FALSE}
+
+
+#############################
+# calculate returns & standard deviation
+#############################
+sector_summary <- summary_ret_sd_table(sector_tbl)
+datatable(as.data.frame(sector_summary))
+```
+
+
+### ETF Übersicht
+Schweizer ETF
+```{r, echo=FALSE, warning=FALSE}
 ### Risk-Return Sectors
-secRetM <- sector_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "monthly", 
-               col_rename = "retM") %>%
-  mutate(retM = round(retM*100,2))
 
-secRetW <- sector_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "weekly", 
-               col_rename = "retW") %>%
-  mutate(retW = round(retW*100,2))
-
-secRetQ <- sector_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "quarterly", 
-               col_rename = "retQ") %>%
-  mutate(retQ = round(retQ*100,2))
-
-secRetY <- sector_tbl %>%
-  group_by(symbol) %>%
-  tq_transmute(select     = adjusted, 
-               mutate_fun = periodReturn, 
-               period     = "yearly", 
-               col_rename = "retY") %>%
-  mutate(retY = round(retY*100,2))
-
-
-
-
-secRetTable <- left_join( filter(secRetW, date == reportingDate), filter(secRetM, date == reportingDate), by = c("symbol", "date")) 
-secRetTable <- left_join(secRetTable, filter(secRetQ, date == reportingDate), by = c("symbol", "date"))
-secRetTable <- left_join(secRetTable, filter(secRetY, date == reportingDate),by = c("symbol", "date"))
-
-
-secRetTable$symbol <- sektoren$Name
-datatable(as.data.frame(secRetTable))
+#############################
+# calculate returns & standard deviation
+#############################
+etf_ch_summary <- summary_ret_sd_table(etf_ch_tbl)
+datatable(as.data.frame(etf_ch_summary))
 ```
 
 
