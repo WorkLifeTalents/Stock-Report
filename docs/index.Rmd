@@ -126,7 +126,7 @@ watchlist <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "A
 sektoren <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Sektoren", .name_repair = "unique_quiet")
 portfolio <-  read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "Portfolio", .name_repair = "unique_quiet")
 etf_ch <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "ETF-CH", .name_repair = "unique_quiet")
-
+etf_spx <- read_xlsx(paste(getwd(),"/WLT-Titelliste.xlsx", sep=""), sheet = "ETF-US", .name_repair = "unique_quiet")
 ```
 
 
@@ -173,6 +173,14 @@ etf_ch_tbl <- etf_ch$Ticker %>%
          from = "2015-01-01" ,
          to   = end.date) %>%
   group_by(symbol)
+
+etf_spx_tbl <- etf_spx$Ticker %>%
+  tq_get(get  = "stock.prices",
+         from = "2015-01-01" ,
+         to   = end.date) %>%
+  group_by(symbol)
+
+
 
 # Scrap ticker info data from Yahoo
 #ptf.info <- mapply(scrapData, ptf.stk, sector = TRUE, title = TRUE)
@@ -497,7 +505,7 @@ datatable(as.data.frame(sector_summary))
 
 
 ### ETF Übersicht
-Schweizer ETF
+# Schweizer ETF
 ```{r, echo=FALSE, warning=FALSE}
 ### Risk-Return Sectors
 
@@ -506,6 +514,52 @@ Schweizer ETF
 #############################
 etf_ch_summary <- summary_ret_sd_table(etf_ch_tbl)
 datatable(as.data.frame(etf_ch_summary))
+
+
+# Calculate sizeref to scale bubble sizes appropriately
+# Here, we set a maximum marker size (e.g., 100 pixels) and calculate sizeref accordingly.
+max_marker_size <- 100
+sizeref <- 2 * max(etf_ch$`Fondsgröße (in Mio. CHF)`) / (max_marker_size^2)
+
+# Define a custom range for the x-axis. Adjust the multiplier as needed.
+x_range <- c(min(etf_ch_summary$ann_sd_3y)*0.8, max(etf_ch_summary$ann_sd_3y) * 1.2)
+
+# Create bubble chart
+fig <- plot_ly(x = ~etf_ch_summary$ann_sd_3y, 
+               y = ~etf_ch_summary$ann_ret_3y, 
+               #color = ~etf_ch$Ticker,
+               #colors = "Set1",
+               type = 'scatter',
+               mode = 'markers',
+               marker = list(
+                 size = ~etf_ch$`Fondsgröße (in Mio. CHF)`,
+                 sizemode = 'area',
+                 sizeref = sizeref,
+                 sizemin = 4  # Minimum bubble size in pixels
+               ),
+               text = ~paste("Fund:", etf_ch$Fondsname, "<br>AuM:", etf_ch$`Fondsgröße (in Mio. CHF)`)) %>%
+  layout(title = "Bubble Chart: Return vs Standard Deviation",
+         xaxis = list(title = "3 Jahres ann. Volatilität", range = x_range),
+         yaxis = list(title = "3 Jahres ann. Rendite"),
+          legend = list(orientation = "h",    # Horizontal legend
+                       x = 0.5,              # Centered horizontally
+                       y = -0.2,             # Positioned below the x-axis
+                       xanchor = "center"))  # Anchor at center
+
+
+fig
+
+```
+
+# S&P500 ETF
+```{r, echo=FALSE, warning=FALSE}
+### Risk-Return Sectors
+
+#############################
+# calculate returns & standard deviation
+#############################
+etf_spx_summary <- summary_ret_sd_table(etf_spx_tbl)
+datatable(as.data.frame(etf_spx_summary))
 ```
 
 
